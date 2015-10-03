@@ -145,6 +145,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             shot[6] = 1;
             fl = false;
             window_width = 500;
+            //asd
             // one sensor is currently supported
             this.kinectSensor = KinectSensor.GetDefault();
 
