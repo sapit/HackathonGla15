@@ -16,6 +16,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
     using Microsoft.Kinect;
+    using System.Windows.Controls;
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -121,14 +122,15 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// List of colors for each body tracked
         /// </summary>
         private List<Pen> bodyColors;
-
+        public double window_width;
         /// <summary>
         /// Current status text to display
         /// </summary>
         private string statusText = null;
-
         private int[] shot = new int[7];
+        private int[] hats = new int[7];
         bool fl;
+        int num_of_bodies;
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -142,7 +144,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             shot[5] = 1;
             shot[6] = 1;
             fl = false;
-
+            window_width = 500;
             // one sensor is currently supported
             this.kinectSensor = KinectSensor.GetDefault();
 
@@ -313,7 +315,6 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
-
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
@@ -335,6 +336,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             {
                 using (DrawingContext dc = this.drawingGroup.Open())
                 {
+                    num_of_bodies = 0;
                     // Draw a transparent background to set the render size
                     dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
                     int penIndex = 0;
@@ -347,7 +349,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             this.DrawClippedEdges(body, dc);
 
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-
+                            
                             // convert the joint points to depth (display) space
                             Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
 
@@ -369,21 +371,51 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             {
                                 Console.WriteLine(i + " - " + shot[i]);
                             }
-                            if ((shot[Array.IndexOf(bodies,body)]==1) && (bodies.Length>1))
+                            foreach (Body i in bodies)
                             {
-                                if (fl)
+                                if (i.IsTracked)
                                 {
+                                    num_of_bodies++;
+                                }
+                            }
+                            Console.WriteLine("num_of_bodies: " + num_of_bodies);
+                            //if ((shot[Array.IndexOf(bodies, body)] == 1) && (num_of_bodies > 1))
+                            if ((shot[Array.IndexOf(bodies, body)] == 1) && (num_of_bodies > 1))
+                                {
+                                    if (fl)
+                                    {
                                     shot[Array.IndexOf(bodies, body)] = 0;
                                     fl = false;
-                                    break;
-                                }
+                                    continue;
+                                    }
                                 //if (jointPoints[JointType.HandTipLeft]>=jointPoints[JointType.SpineMid])
                                 if (jointPoints[JointType.HandTipLeft].Y <= jointPoints[JointType.SpineMid].Y)
                                 {
-                                    fl = true;
+                                    hat.Visibility = Visibility.Hidden;
+                                    //fl = true;
+                                    for(int i=0;i<bodies.Length;i++)
+                                    {
+                                        if (bodies[i] == body)
+                                            continue;
+                                        else
+                                        {
+                                            shot[i] = 0;
+                                        }
+                                        
+                                    }
                                     Console.WriteLine("BAM");
                                     Console.WriteLine(Array.IndexOf(bodies, body));
                                     Console.WriteLine(shot[Array.IndexOf(bodies, body)]);
+                                }
+                                if (jointPoints[JointType.Neck].X > window_width / 2)
+                                {
+                                    Canvas.SetLeft(hat, jointPoints[JointType.Head].X + (jointPoints[JointType.ShoulderRight].X - jointPoints[JointType.ShoulderLeft].X) / 2);
+                                    Canvas.SetTop(hat, jointPoints[JointType.Head].Y + (jointPoints[JointType.Head].Y - jointPoints[JointType.Neck].Y));
+                                }
+                                if (jointPoints[JointType.Neck].X<window_width/2)
+                                {
+                                    Canvas.SetLeft(hat2, jointPoints[JointType.Head].X);
+                                    Canvas.SetTop(hat2, jointPoints[JointType.Head].Y + (jointPoints[JointType.Head].Y - jointPoints[JointType.ShoulderLeft].Y));
                                 }
 
                                 //Console.WriteLine("Elbow Left");
@@ -443,6 +475,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                     drawingContext.DrawEllipse(drawBrush, null, jointPoints[jointType], JointThickness, JointThickness);
                 }
             }
+
         }
 
         /// <summary>

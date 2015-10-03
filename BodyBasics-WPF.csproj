@@ -50,10 +50,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Kinect">
-        <HintPath>$(KINECTSDK20_DIR)Assemblies\Microsoft.Kinect.dll</HintPath>
+      <HintPath>$(KINECTSDK20_DIR)Assemblies\Microsoft.Kinect.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -116,6 +117,15 @@
     <Resource Include="Images\Kinect.ico" />
     <Resource Include="Images\Logo.png" />
     <Resource Include="Images\Status.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cowboy_hat.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cowboy_hat1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cowboy_hat2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
